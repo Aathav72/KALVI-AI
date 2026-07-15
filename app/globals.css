@@ -1,0 +1,388 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════
+   KALVIAI – PREMIUM CLASSROOM BLACKBOARD DESIGN SYSTEM
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  /* Blackboard Colors */
+  --board:        #1F4D3A;
+  --board-dark:   #172E24;
+  --board-light:  #254F42;
+  --board-border: #2E6B52;
+  /* Chalk Colors */
+  --chalk-white:  #F8F8F2;
+  --chalk-yellow: #F8E16C;
+  --chalk-pink:   #FF9CCF;
+  --chalk-blue:   #7FD6FF;
+  --chalk-muted:  #A8B5A0;
+  --chalk-green:  #88D9A8;
+  /* Wood */
+  --wood:         #8B5A2B;
+  --wood-dark:    #5E3A1A;
+  --wood-light:   #A0703A;
+}
+
+/* ── Base ── */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-board text-chalk-white font-body min-h-screen antialiased relative overflow-x-hidden;
+    background-color: var(--board);
+    /* Layered chalkboard slate texture */
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(139,90,43,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(139,90,43,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(31,77,58,0.6) 0%, rgba(23,46,36,0.8) 100%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    background-attachment: fixed;
+    background-size: cover;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-chalk-yellow;
+    text-shadow: 0 0 8px rgba(248,225,108,0.3), 1px 1px 0 rgba(0,0,0,0.4);
+    letter-spacing: 0.04em;
+  }
+
+  ::selection {
+    background: rgba(248,225,108,0.25);
+    color: var(--chalk-white);
+  }
+
+  input, textarea, select {
+    @apply bg-board-dark border border-board-border text-chalk-white;
+    outline: none;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--chalk-muted);
+    opacity: 0.65;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--board-dark); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--board-border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--chalk-muted); }
+}
+
+/* ── Utilities ── */
+@layer utilities {
+
+  /* ─── Chalk Text Effects ─── */
+  .chalk-text {
+    text-shadow:
+      0 0 2px rgba(248,248,242,0.4),
+      1px 1px 0 rgba(0,0,0,0.35),
+      0 0 8px rgba(248,248,242,0.15);
+    letter-spacing: 0.04em;
+  }
+
+  .chalk-text-yellow {
+    color: var(--chalk-yellow);
+    text-shadow:
+      0 0 4px rgba(248,225,108,0.5),
+      1px 1px 0 rgba(0,0,0,0.4),
+      0 0 12px rgba(248,225,108,0.25);
+    letter-spacing: 0.04em;
+  }
+
+  .chalk-text-blue {
+    color: var(--chalk-blue);
+    text-shadow:
+      0 0 4px rgba(127,214,255,0.5),
+      1px 1px 0 rgba(0,0,0,0.4),
+      0 0 12px rgba(127,214,255,0.2);
+    letter-spacing: 0.04em;
+  }
+
+  .chalk-text-pink {
+    color: var(--chalk-pink);
+    text-shadow:
+      0 0 4px rgba(255,156,207,0.5),
+      1px 1px 0 rgba(0,0,0,0.4),
+      0 0 12px rgba(255,156,207,0.2);
+    letter-spacing: 0.04em;
+  }
+
+  .chalk-text-green {
+    color: var(--chalk-green);
+    text-shadow:
+      0 0 4px rgba(136,217,168,0.5),
+      1px 1px 0 rgba(0,0,0,0.4);
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── Chalk Glow ─── */
+  .chalk-glow {
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  /* ─── Chalk Shadow / Box Shadow ─── */
+  .chalk-shadow {
+    box-shadow: 0 0 12px rgba(248,248,242,0.1), 0 4px 16px rgba(0,0,0,0.4);
+  }
+
+  .chalk-shadow-lg {
+    box-shadow: 0 0 24px rgba(248,248,242,0.14), 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  /* ─── Wood Frame ─── */
+  .wood-frame {
+    position: relative;
+    border: 10px solid var(--wood);
+    border-top-color: var(--wood-light);
+    border-left-color: var(--wood-light);
+    border-bottom-color: var(--wood-dark);
+    border-right-color: var(--wood-dark);
+    box-shadow:
+      inset 0 0 20px rgba(0,0,0,0.6),
+      0 0 0 2px var(--wood-dark),
+      0 16px 40px rgba(0,0,0,0.6),
+      0 4px 8px rgba(255,255,255,0.06);
+  }
+
+  /* Chalk tray at the bottom of a wood-frame */
+  .wood-frame-tray::after {
+    content: '';
+    position: absolute;
+    bottom: -18px;
+    left: -10px;
+    right: -10px;
+    height: 12px;
+    background: linear-gradient(to bottom, var(--wood-light), var(--wood), var(--wood-dark));
+    border-bottom: 3px solid var(--wood-dark);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.1);
+    border-radius: 0 0 4px 4px;
+    z-index: 20;
+  }
+
+  /* ─── Chalk Sticks (in tray) ─── */
+  .chalk-stick {
+    position: absolute;
+    bottom: -14px;
+    height: 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+    z-index: 25;
+  }
+
+  /* ─── Board Lines ─── */
+  .board-ruled {
+    background-image: linear-gradient(rgba(248,248,242,0.055) 1px, transparent 1px);
+    background-size: 100% 2.25rem;
+    background-position: 0 0.5rem;
+  }
+
+  .board-grid {
+    background-image:
+      linear-gradient(rgba(248,248,242,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(248,248,242,0.04) 1px, transparent 1px);
+    background-size: 2.5rem 2.5rem;
+  }
+
+  /* ─── Chalk-rough SVG filter ─── */
+  .chalk-rough {
+    filter: url(#chalk-roughness);
+  }
+
+  /* ─── Wooden Button ─── */
+  .btn-wood {
+    background: linear-gradient(to bottom, var(--wood-light), var(--wood), var(--wood-dark));
+    border: 2px solid var(--wood-dark);
+    box-shadow: 3px 3px 0 var(--wood-dark), inset 0 1px 0 rgba(255,255,255,0.15);
+    color: var(--chalk-white);
+    font-family: var(--font-caveat), cursive;
+    letter-spacing: 0.06em;
+    transition: all 0.15s ease;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  }
+
+  .btn-wood:hover:not(:disabled) {
+    background: linear-gradient(to bottom, #B07A45, var(--wood-light), var(--wood));
+    box-shadow: 2px 2px 0 var(--wood-dark), inset 0 1px 0 rgba(255,255,255,0.2);
+    transform: translateY(1px);
+  }
+
+  .btn-wood:active:not(:disabled) {
+    box-shadow: 1px 1px 0 var(--wood-dark);
+    transform: translateY(2px);
+  }
+
+  /* ─── Chalk Button ─── */
+  .btn-chalk {
+    background: transparent;
+    border: 2px solid var(--chalk-yellow);
+    color: var(--chalk-yellow);
+    font-family: var(--font-caveat), cursive;
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 6px rgba(248,225,108,0.4);
+    box-shadow: 0 0 8px rgba(248,225,108,0.12), inset 0 0 8px rgba(248,225,108,0.04);
+    transition: all 0.2s ease;
+  }
+
+  .btn-chalk:hover:not(:disabled) {
+    background: rgba(248,225,108,0.1);
+    box-shadow: 0 0 16px rgba(248,225,108,0.2), inset 0 0 12px rgba(248,225,108,0.08);
+    text-shadow: 0 0 10px rgba(248,225,108,0.6);
+  }
+
+  /* ─── Card (Mini Chalkboard) ─── */
+  .chalk-card {
+    background: var(--board-dark);
+    border: 2px solid var(--board-border);
+    box-shadow: 0 0 12px rgba(248,248,242,0.06), 0 4px 16px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chalk-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── Chalk Divider ─── */
+  .chalk-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(248,248,242,0.2), rgba(248,225,108,0.3), rgba(248,248,242,0.2), transparent);
+    margin: 0.5rem 0;
+  }
+
+  /* ─── Input Chalkboard Style ─── */
+  .chalk-input {
+    background: rgba(23,46,36,0.8);
+    border: 1px solid var(--board-border);
+    color: var(--chalk-white);
+    font-family: var(--font-caveat), cursive;
+    letter-spacing: 0.03em;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .chalk-input:focus {
+    border-color: var(--chalk-yellow);
+    box-shadow: 0 0 0 2px rgba(248,225,108,0.12), 0 0 12px rgba(248,225,108,0.08);
+    outline: none;
+  }
+
+  /* ─── Writing Animation ─── */
+  .chalk-animate-write {
+    animation: chalkWrite 0.8s ease-out forwards;
+  }
+
+}
+
+/* ══════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════ */
+
+@keyframes glowPulse {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(248,225,108,0.4), 1px 1px 0 rgba(0,0,0,0.4);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(248,225,108,0.8), 0 0 24px rgba(248,225,108,0.3), 1px 1px 0 rgba(0,0,0,0.4);
+  }
+}
+
+@keyframes chalkWrite {
+  from { opacity: 0; letter-spacing: -0.05em; }
+  to   { opacity: 1; letter-spacing: 0.04em; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.45s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.35s ease-out forwards;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes wave {
+  0%   { transform: scaleY(0.5); }
+  50%  { transform: scaleY(1.5); }
+  100% { transform: scaleY(0.5); }
+}
+
+.mic-wave {
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  background-color: var(--chalk-pink);
+  border-radius: 2px;
+  margin: 0 2px;
+}
+
+.recording .mic-wave { animation: wave 1s infinite ease-in-out; }
+.recording .mic-wave:nth-child(2) { animation-delay: 0.2s; }
+.recording .mic-wave:nth-child(3) { animation-delay: 0.4s; }
+
+/* Chalk float for deco elements */
+@keyframes float {
+  0%   { transform: translateY(0px) rotate(0deg); }
+  50%  { transform: translateY(-10px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-chalk-float       { animation: float 6s ease-in-out infinite; }
+.animate-chalk-float-slow  { animation: float 10s ease-in-out infinite; animation-delay: 1s; }
+.animate-chalk-float-slower{ animation: float 14s ease-in-out infinite; animation-delay: 3s; }
+
+/* Chalk dust drift */
+@keyframes drift {
+  0%   { transform: translateY(100vh) translateX(0) scale(1); opacity: 0; }
+  8%   { opacity: 0.25; }
+  90%  { opacity: 0.15; }
+  100% { transform: translateY(-10vh) translateX(60px) scale(0.7); opacity: 0; }
+}
+
+.dust-particle {
+  position: absolute;
+  background-color: var(--chalk-white);
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(0.8px);
+  animation: drift infinite linear;
+}
+
+/* Ping ring for recording button */
+@keyframes ping {
+  75%, 100% { transform: scale(1.8); opacity: 0; }
+}
+.animate-ping { animation: ping 1s cubic-bezier(0,0,0.2,1) infinite; }

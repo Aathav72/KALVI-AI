@@ -1,0 +1,55 @@
+
+> kalviai@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.1.1.6:3000
+- Environments: .env.local
+✓ Ready in 2.9s
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of F:\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * F:\kalvi\package-lock.json
+
+⚠ Slow filesystem detected. The benchmark took 428ms. If F:\kalvi/.next/dev is a network drive, consider moving it to a local folder.
+See more: https://nextjs.org/docs/app/guides/local-development
+
+○ Compiling / ...
+ GET / 200 in 20.0s (next.js: 19.5s, application-code: 520ms)
+ GET /session/33ff5719-e839-4485-84be-a235c3572973 200 in 21.7s
+○ Compiling /dashboard ...
+ GET /dashboard 200 in 3.5s (next.js: 3.5s, application-code: 52ms)
+ GET /session/new 200 in 1511ms (next.js: 1479ms, application-code: 31ms)
+ GET /session/ad8a55d0-c263-4d7c-b9a3-caa3b7954684 200 in 80ms (next.js: 25ms, application-code: 55ms)
+[transcribe] size=65580 bytes, lang=en, sampleRate=48000
+[transcribe] Deepgram returned empty transcript: {"metadata":{"transaction_key":"deprecated","request_id":"019f5f70-bd74-7050-88ac-1c0c99856da9","sha256":"2db515fccf882937c638f65519cc46e5ffd6468cae5f0b0d9c269b132e80d8a5","created":"2026-07-14T07:04:12.440Z","duration":0.6826875,"channels":1,"models":["2187e11a-3532-4498-b076-81fa530bdd49"],"model_
+ POST /api/transcribe 400 in 2.6s (next.js: 355ms, application-code: 2.3s)
+[browser] [transcribe] error: Error: No speech detected — please speak clearly and try again
+    at <unknown> (.next\dev\static\chunks\kalvi_app_session_[id]_page_1hhe-03.js:273:41) (.next\dev\static\chunks\kalvi_app_session_[id]_page_1hhe-03.js:276:21)
+[transcribe] size=368684 bytes, lang=en, sampleRate=48000
+[transcribe] Deepgram returned empty transcript: {"metadata":{"transaction_key":"deprecated","request_id":"019f5f70-e5fc-7743-872c-4ed38d71f670","sha256":"677f8534101594c59838ba5a01cf12849b341913623a2d6989955186c39ad93d","created":"2026-07-14T07:04:23.314Z","duration":3.84,"channels":1,"models":["2187e11a-3532-4498-b076-81fa530bdd49"],"model_info"
+ POST /api/transcribe 400 in 2.8s (next.js: 12ms, application-code: 2.7s)
+[browser] [transcribe] error: Error: No speech detected — please speak clearly and try again
+    at <unknown> (.next\dev\static\chunks\kalvi_app_session_[id]_page_1hhe-03.js:273:41) (.next\dev\static\chunks\kalvi_app_session_[id]_page_1hhe-03.js:276:21)
+[transcribe] size=679980 bytes, lang=en, sampleRate=48000
+[transcribe] Deepgram returned empty transcript: {"metadata":{"transaction_key":"deprecated","request_id":"019f5f71-151f-7002-a957-a2185062fc57","sha256":"83efdad21d4dfdbaaa29ac5c5698e10f622757e95040d392960e2e0ed248d71c","created":"2026-07-14T07:04:35.960Z","duration":7.0826874,"channels":1,"models":["2187e11a-3532-4498-b076-81fa530bdd49"],"model_
+ POST /api/transcribe 400 in 3.1s (next.js: 6ms, application-code: 3.0s)
+[browser] [transcribe] error: Error: No speech detected — please speak clearly and try again
+    at <unknown> (.next\dev\static\chunks\kalvi_app_session_[id]_page_1hhe-03.js:273:41) (.next\dev\static\chunks\kalvi_app_session_[id]_page_1hhe-03.js:276:21)
+ GET / 200 in 1875ms (next.js: 728ms, application-code: 1147ms)
+ GET /dashboard 200 in 142ms (next.js: 56ms, application-code: 86ms)
+ GET /session/new 200 in 459ms (next.js: 145ms, application-code: 314ms)
+ GET /session/4d43a45e-ead3-45a8-9e73-678ad0e61835 200 in 524ms (next.js: 289ms, application-code: 235ms)
+[transcribe] size=622636 bytes, lang=en, sampleRate=48000
+[transcribe] Deepgram returned empty transcript: {"metadata":{"transaction_key":"deprecated","request_id":"019f5fad-94fd-7ec2-b272-0484f3be9cd3","sha256":"c382505bfaa0856cd1e81e4dee92d1a6ec4420cbd02989360aba418393528d3f","created":"2026-07-14T08:10:40.532Z","duration":6.485375,"channels":1,"models":["2187e11a-3532-4498-b076-81fa530bdd49"],"model_i
+ POST /api/transcribe 400 in 3.1s (next.js: 73ms, application-code: 3.1s)
+[browser] [transcribe] error: Error: No speech detected — please speak clearly and try again
+    at <unknown> (.next\dev\static\chunks\kalvi_app_session_[id]_page_1hhe-03.js:273:41) (.next\dev\static\chunks\kalvi_app_session_[id]_page_1hhe-03.js:276:21)
+ GET /session/4d43a45e-ead3-45a8-9e73-678ad0e61835 200 in 9.0s (next.js: 6.7s, application-code: 2.3s)
+ GET /session/4d43a45e-ead3-45a8-9e73-678ad0e61835 200 in 174ms (next.js: 3ms, application-code: 171ms)
+ GET /session/4d43a45e-ead3-45a8-9e73-678ad0e61835 200 in 72ms (next.js: 36ms, application-code: 36ms)
+ GET /session/4d43a45e-ead3-45a8-9e73-678ad0e61835 200 in 75ms (next.js: 5ms, application-code: 71ms)
+[?25h
