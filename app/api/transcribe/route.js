@@ -26,14 +26,13 @@ export async function POST(request) {
         const groqForm = new FormData();
         groqForm.append("file", audio);
         groqForm.append("model", "whisper-large-v3-turbo");
-        // ❌ REMOVED: language param (not needed — Whisper auto-detects)
-        // ❌ REMOVED: language-specific transcription
+        groqForm.append("language", language);
         groqForm.append("response_format", "json");
 
         console.log("Sending request to Groq...");
 
         const response = await fetch(
-            "https://api.groq.com/openai/v1/audio/translations", // ✅ Changed: transcriptions → translations
+            "https://api.groq.com/openai/v1/audio/transcriptions",
             {
                 method: "POST",
                 headers: {
@@ -56,7 +55,7 @@ export async function POST(request) {
         }
 
         return NextResponse.json({
-            transcript: data.text, // ✅ Now always returns English text
+            transcript: data.text,
         });
 
     } catch (error) {
