@@ -5,9 +5,9 @@
 :root {
   /* Blackboard Colors */
   --board: #f6fefa;
-  --board-dark: #172E24;
-  --board-light: #254F42;
-  --board-border: #2E6B52;
+  --board-dark: #f9fdfb;
+  --board-light: #ffffff;
+  --board-border: #ffffff;
   /* Chalk Colors */
   --chalk-white: #F8F8F2;
   --chalk-yellow: #F8E16C;
