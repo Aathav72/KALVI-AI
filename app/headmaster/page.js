@@ -307,38 +307,67 @@ export default function HeadMasterDashboard() {
                       </div>
                     </div>
 
-                    {/* Middle Info: Subject & Standard */}
-                    <div className="flex items-center gap-4 flex-wrap">
+                    {/* Middle Info: Subjects, Standards & Lessons */}
+                    <div className="flex flex-col gap-3">
+                      {/* Subjects taught */}
                       <div className="px-4 py-2 rounded" style={{ background: 'rgba(23,46,36,0.8)', border: '1px solid #2E6B52' }}>
-                        <p className="font-handwritten text-xs tracking-wider" style={{ color: 'rgba(248,248,242,0.5)' }}>
-                          SUBJECT
+                        <p className="font-handwritten text-xs tracking-wider mb-1.5" style={{ color: 'rgba(248,248,242,0.5)' }}>
+                          SUBJECTS TAUGHT
                         </p>
-                        <p className="font-display text-base tracking-wider" style={{ color: '#FF9CCF' }}>
-                          📖 {teacher.subject || 'General'}
-                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(teacher.all_subjects && teacher.all_subjects.length > 0) ? (
+                            teacher.all_subjects.map(sub => (
+                              <span
+                                key={sub}
+                                className="px-2 py-0.5 rounded font-display text-sm tracking-wide"
+                                style={{ background: 'rgba(255,156,207,0.15)', border: '1px solid rgba(255,156,207,0.4)', color: '#FF9CCF' }}
+                              >
+                                📖 {sub}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="font-handwritten text-sm italic" style={{ color: 'rgba(248,248,242,0.35)' }}>
+                              Not set yet
+                            </span>
+                          )}
+                        </div>
                       </div>
 
+                      {/* Standards taught */}
                       <div className="px-4 py-2 rounded" style={{ background: 'rgba(23,46,36,0.8)', border: '1px solid #2E6B52' }}>
-                        <p className="font-handwritten text-xs tracking-wider" style={{ color: 'rgba(248,248,242,0.5)' }}>
-                          STANDARD / CLASS
+                        <p className="font-handwritten text-xs tracking-wider mb-1.5" style={{ color: 'rgba(248,248,242,0.5)' }}>
+                          STANDARDS / CLASSES
                         </p>
-                        <p className="font-display text-base tracking-wider" style={{ color: '#7FD6FF' }}>
-                          🎓 Class / Grade {teacher.grade || '5'}
-                        </p>
-                      </div>
-
-                      <div className="px-4 py-2 rounded" style={{ background: 'rgba(23,46,36,0.8)', border: '1px solid #2E6B52' }}>
-                        <p className="font-handwritten text-xs tracking-wider" style={{ color: 'rgba(248,248,242,0.5)' }}>
-                          LESSONS CONDUCTED
-                        </p>
-                        <p className="font-display text-base tracking-wider" style={{ color: '#A6E22E' }}>
-                          ⚡ {sessionCount} Lessons
-                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(teacher.all_grades && teacher.all_grades.length > 0) ? (
+                            teacher.all_grades.map(g => (
+                              <span
+                                key={g}
+                                className="px-2 py-0.5 rounded font-display text-sm tracking-wide"
+                                style={{ background: 'rgba(127,214,255,0.15)', border: '1px solid rgba(127,214,255,0.4)', color: '#7FD6FF' }}
+                              >
+                                🎓 Grade {g}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="font-handwritten text-sm italic" style={{ color: 'rgba(248,248,242,0.35)' }}>
+                              Not set yet
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Right Button: Toggle Session View */}
-                    <div className="shrink-0">
+                    {/* Right: Lesson count + Toggle */}
+                    <div className="flex flex-col items-end gap-3 shrink-0">
+                      <div className="px-4 py-2 rounded text-center" style={{ background: 'rgba(23,46,36,0.8)', border: '1px solid #2E6B52' }}>
+                        <p className="font-handwritten text-xs tracking-wider" style={{ color: 'rgba(248,248,242,0.5)' }}>
+                          LESSONS CONDUCTED
+                        </p>
+                        <p className="font-display text-2xl font-bold" style={{ color: '#A6E22E' }}>
+                          {sessionCount}
+                        </p>
+                      </div>
                       <button
                         onClick={() => toggleExpand(teacher.id)}
                         className="flex items-center gap-2 px-4 py-2.5 rounded font-display text-sm tracking-wider transition-all duration-200"

@@ -1,5 +1,5 @@
 -- ============================================================
--- KALVI AI — Profiles Table Migration
+-- KALVI AI — Profiles Table Migration (Updated)
 -- Run this in your Supabase SQL Editor at:
 -- https://supabase.com/dashboard → SQL Editor → New Query
 -- ============================================================
@@ -50,5 +50,23 @@ WHERE NOT EXISTS (
 )
 ON CONFLICT (id) DO NOTHING;
 
+-- Step 6: Fix subject/grade in profiles that are blank by pulling from their sessions
+UPDATE public.profiles p
+SET
+    subject = COALESCE(NULLIF(p.subject, ''), s.subject),
+    grade   = COALESCE(NULLIF(p.grade, ''), s.grade)
+FROM (
+    SELECT DISTINCT ON (teacher_id)
+        teacher_id, subject, grade
+    FROM public.sessions
+    ORDER BY teacher_id, created_at DESC
+) s
+WHERE p.id = s.teacher_id
+  AND (p.subject = '' OR p.grade = '');
+
+-- Step 7 (IMPORTANT): Fix headmaster role if it was accidentally saved as 'teacher'
+-- Run this for each headmaster by their email:
+-- UPDATE public.profiles SET role = 'headmaster' WHERE email = 'your-headmaster@email.com';
+
 -- Done! Verify with:
-SELECT * FROM public.profiles ORDER BY created_at DESC;
+SELECT id, email, full_name, role, subject, grade FROM public.profiles ORDER BY role, created_at DESC;
