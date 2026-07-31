@@ -59,6 +59,22 @@ export default function HeadMasterDashboard() {
 
       if (user) {
         profile = await getUserProfile(user);
+        
+        // Ensure they have the headmaster role in the database if they are accessing this admin portal
+        if (profile && profile.role !== 'headmaster') {
+          profile.role = 'headmaster';
+          try {
+            await supabase
+              .from('profiles')
+              .update({ role: 'headmaster' })
+              .eq('id', user.id);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('kalvi_user_profile', JSON.stringify(profile));
+            }
+          } catch (e) {
+            console.error('Failed to sync headmaster role in database:', e);
+          }
+        }
       } else if (typeof window !== 'undefined') {
         const userStr = localStorage.getItem('kalvi_user_profile');
         if (userStr) {
