@@ -917,7 +917,7 @@ export default function ActiveSession({ params }) {
                         const opts = q.options.map((o, oi) => `  ${String.fromCharCode(65 + oi)}. ${o}`).join('\n');
                         const chosen = (q.selectedAnswerIndex !== undefined && q.selectedAnswerIndex !== null)
                           ? `Teacher's Chosen Answer: Option ${String.fromCharCode(65 + q.selectedAnswerIndex)}`
-                          : 'Teacher's Chosen Answer: None selected yet';
+                          : "Teacher's Chosen Answer: None selected yet";
                         return `${i + 1}. ${q.question}\n${opts}\n${chosen}`;
                       }).join('\n\n');
                       copyToClipboard(quizText, 'quiz');
