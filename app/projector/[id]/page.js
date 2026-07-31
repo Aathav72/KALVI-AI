@@ -170,40 +170,52 @@ export default function Projector({ params }) {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
-            {session.quiz[0].options.map((opt, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-4 cursor-default transition-all duration-300"
-                style={{
-                  padding: '1.25rem 1.5rem',
-                  background: 'rgba(23,46,36,0.6)',
-                  border: '2px dashed #2E6B52',
-                  borderRadius: '4px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#7FD6FF'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#2E6B52'; }}
-              >
-                <span
-                  className="w-11 h-11 rounded-full flex items-center justify-center font-display text-lg flex-shrink-0"
+            {session.quiz[0].options.map((opt, idx) => {
+              const isSelectedByTeacher = session.quiz[0].selectedAnswerIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between gap-4 cursor-default transition-all duration-300"
                   style={{
-                    border: '2px solid #F8E16C',
-                    background: 'rgba(248,225,108,0.1)',
-                    color: '#F8E16C',
-                    textShadow: '0 0 6px rgba(248,225,108,0.4)',
-                    minWidth: '2.75rem',
+                    padding: '1.25rem 1.5rem',
+                    background: isSelectedByTeacher ? 'rgba(248,225,108,0.2)' : 'rgba(23,46,36,0.6)',
+                    border: isSelectedByTeacher ? '2px solid #F8E16C' : '2px dashed #2E6B52',
+                    borderRadius: '4px',
+                    boxShadow: isSelectedByTeacher ? '0 0 24px rgba(248,225,108,0.35)' : '0 4px 12px rgba(0,0,0,0.3)',
+                    transform: isSelectedByTeacher ? 'scale(1.02)' : 'scale(1)',
                   }}
+                  onMouseEnter={e => { if (!isSelectedByTeacher) e.currentTarget.style.borderColor = '#7FD6FF'; }}
+                  onMouseLeave={e => { if (!isSelectedByTeacher) e.currentTarget.style.borderColor = '#2E6B52'; }}
                 >
-                  {String.fromCharCode(65 + idx)}
-                </span>
-                <span
-                  className="font-handwritten text-xl sm:text-2xl text-left"
-                  style={{ color: '#F8F8F2', letterSpacing: '0.03em' }}
-                >
-                  {opt}
-                </span>
-              </div>
-            ))}
+                  <div className="flex items-center gap-4">
+                    <span
+                      className="w-11 h-11 rounded-full flex items-center justify-center font-display text-lg flex-shrink-0"
+                      style={{
+                        border: isSelectedByTeacher ? '2px solid #F8E16C' : '2px solid #F8E16C',
+                        background: isSelectedByTeacher ? '#F8E16C' : 'rgba(248,225,108,0.1)',
+                        color: isSelectedByTeacher ? '#172E24' : '#F8E16C',
+                        fontWeight: isSelectedByTeacher ? 'bold' : 'normal',
+                        textShadow: isSelectedByTeacher ? 'none' : '0 0 6px rgba(248,225,108,0.4)',
+                        minWidth: '2.75rem',
+                      }}
+                    >
+                      {String.fromCharCode(65 + idx)}
+                    </span>
+                    <span
+                      className="font-handwritten text-xl sm:text-2xl text-left"
+                      style={{ color: isSelectedByTeacher ? '#F8E16C' : '#F8F8F2', letterSpacing: '0.03em' }}
+                    >
+                      {opt}
+                    </span>
+                  </div>
+                  {isSelectedByTeacher && (
+                    <span className="px-3 py-1 rounded font-display text-xs tracking-wider font-bold shrink-0" style={{ background: '#F8E16C', color: '#172E24' }}>
+                      ✓ CORRECT ANSWER
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

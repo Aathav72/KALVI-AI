@@ -303,6 +303,11 @@ export default function ActiveSession({ params }) {
       const generateData = await generateRes.json();
       if (!generateRes.ok) throw new Error(generateData.error || 'AI generation failed');
 
+      const formattedQuiz = (generateData.quiz || []).map(q => ({
+        ...q,
+        selectedAnswerIndex: null
+      }));
+
       // 3. Save to Supabase
       setStatus('Saving session…');
 
@@ -311,7 +316,7 @@ export default function ActiveSession({ params }) {
         .update({
           question: transcript,
           ai_answer: generateData.explanation,
-          quiz: generateData.quiz ?? [],
+          quiz: formattedQuiz,
           examples: generateData.examples ?? [],
           tips: generateData.tips ?? [],
           summary: generateData.summary ?? '',
@@ -327,7 +332,7 @@ export default function ActiveSession({ params }) {
           .update({
             question: transcript,
             ai_answer: generateData.explanation,
-            quiz: generateData.quiz ?? [],
+            quiz: formattedQuiz,
           })
           .eq('id', id)
           .select()
@@ -351,6 +356,29 @@ export default function ActiveSession({ params }) {
       console.error('[speech] processTranscript error:', err);
       setStatus(`⚠️ ${err.message || 'Error occurred. Please try again.'}`);
       setTimeout(() => setStatus('Ready'), 5000);
+    }
+  };
+
+  const handleSelectQuizAnswer = async (questionIdx, optionIdx) => {
+    if (!sessionData || !sessionData.quiz) return;
+
+    const updatedQuiz = sessionData.quiz.map((q, idx) => {
+      if (idx === questionIdx) {
+        const newSelectedIndex = q.selectedAnswerIndex === optionIdx ? null : optionIdx;
+        return { ...q, selectedAnswerIndex: newSelectedIndex };
+      }
+      return q;
+    });
+
+    setSessionData((prev) => ({ ...prev, quiz: updatedQuiz }));
+
+    try {
+      await supabase
+        .from('sessions')
+        .update({ quiz: updatedQuiz })
+        .eq('id', id);
+    } catch (err) {
+      console.error('Failed to update selected quiz answer:', err);
     }
   };
 
@@ -867,7 +895,7 @@ export default function ActiveSession({ params }) {
             </div>
           )}
 
-          {/* Quiz Preview Accordion */}
+          {/* Quiz Section */}
           {sessionData.quiz && sessionData.quiz.length > 0 && (
             <div className="bg-board-dark border border-board-border rounded-lg shadow-chalk overflow-hidden">
               <div
@@ -879,7 +907,7 @@ export default function ActiveSession({ params }) {
               >
                 <div className="flex items-center gap-2 font-display text-lg text-chalk-pink chalk-text">
                   <ClipboardList size={20} />
-                  <span>📝 Generated Quiz Preview</span>
+                  <span>📝 Interactive Pop Quiz (Click an option to set the correct answer)</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
@@ -887,7 +915,10 @@ export default function ActiveSession({ params }) {
                       e.stopPropagation();
                       const quizText = sessionData.quiz.map((q, i) => {
                         const opts = q.options.map((o, oi) => `  ${String.fromCharCode(65 + oi)}. ${o}`).join('\n');
-                        return `${i + 1}. ${q.question}\n${opts}\nCorrect Answer Index: ${q.answerIndex}`;
+                        const chosen = (q.selectedAnswerIndex !== undefined && q.selectedAnswerIndex !== null)
+                          ? `Teacher's Chosen Answer: Option ${String.fromCharCode(65 + q.selectedAnswerIndex)}`
+                          : 'Teacher's Chosen Answer: None selected yet';
+                        return `${i + 1}. ${q.question}\n${opts}\n${chosen}`;
                       }).join('\n\n');
                       copyToClipboard(quizText, 'quiz');
                     }}
@@ -901,30 +932,51 @@ export default function ActiveSession({ params }) {
               </div>
               {expandedSections.quiz && (
                 <div className="p-6 transition-all duration-300 board-grid">
+                  <p className="font-handwritten text-lg mb-4" style={{ color: '#F8E16C' }}>
+                    👇 Teacher Choice: Click any option below to mark/reveal the correct answer:
+                  </p>
                   <div className="space-y-6">
                     {sessionData.quiz.map((q, idx) => (
                       <div
                         key={idx}
                         className="p-6 bg-board-dark/95 border border-board-border rounded-xl space-y-4 shadow-chalk"
                       >
-                        <p className="font-display text-base text-chalk-white tracking-wide">
-                          {idx + 1}. {q.question}
-                        </p>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <p className="font-display text-base text-chalk-white tracking-wide">
+                            {idx + 1}. {q.question}
+                          </p>
+                          {(q.selectedAnswerIndex !== undefined && q.selectedAnswerIndex !== null) ? (
+                            <span className="px-3 py-1 rounded font-handwritten text-sm shrink-0 flex items-center gap-1" style={{ background: 'rgba(248,225,108,0.2)', border: '1px solid #F8E16C', color: '#F8E16C' }}>
+                              ✓ Answer Selected: Option {String.fromCharCode(65 + q.selectedAnswerIndex)}
+                            </span>
+                          ) : (
+                            <span className="px-3 py-1 rounded font-handwritten text-sm shrink-0 opacity-60" style={{ background: 'rgba(248,248,242,0.08)', border: '1px solid rgba(248,248,242,0.2)', color: '#F8F8F2' }}>
+                              No answer selected yet
+                            </span>
+                          )}
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {q.options.map((opt, oIdx) => {
-                            const isCorrect = oIdx === q.answerIndex;
+                            const isSelected = q.selectedAnswerIndex === oIdx;
                             return (
-                              <div
+                              <button
                                 key={oIdx}
-                                className={`p-3.5 border-2 border-dashed rounded-lg font-handwritten text-2xl tracking-wider transition duration-200 cursor-default chalk-rough
-                                  ${isCorrect
-                                    ? 'border-chalk-yellow bg-chalk-yellow/10 text-chalk-yellow shadow-chalk font-semibold'
+                                type="button"
+                                onClick={() => handleSelectQuizAnswer(idx, oIdx)}
+                                className={`p-3.5 border-2 border-dashed rounded-lg font-handwritten text-xl tracking-wider transition duration-200 cursor-pointer text-left flex items-center justify-between gap-2 chalk-rough
+                                  ${isSelected
+                                    ? 'border-chalk-yellow bg-chalk-yellow/20 text-chalk-yellow shadow-chalk font-semibold scale-[1.02]'
                                     : 'border-board-border bg-board-light text-chalk-muted hover:border-chalk-blue hover:text-chalk-white'
                                   }`}
                               >
-                                <span className="font-display text-sm mr-2">{String.fromCharCode(65 + oIdx)}.</span>
-                                <span>{opt}</span>
-                              </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-display text-sm px-2.5 py-0.5 rounded" style={{ background: isSelected ? '#F8E16C' : 'rgba(255,255,255,0.1)', color: isSelected ? '#172E24' : '#F8F8F2', fontWeight: 'bold' }}>
+                                    {String.fromCharCode(65 + oIdx)}
+                                  </span>
+                                  <span>{opt}</span>
+                                </div>
+                                {isSelected && <CheckCircle size={18} style={{ color: '#F8E16C' }} />}
+                              </button>
                             );
                           })}
                         </div>
