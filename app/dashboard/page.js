@@ -37,9 +37,9 @@ export default function Dashboard() {
       if (user) {
         profile = await getUserProfile(user);
       } else if (typeof window !== 'undefined') {
-        const demoStr = localStorage.getItem('kalvi_demo_user');
-        if (demoStr) {
-          try { profile = JSON.parse(demoStr); } catch (e) {}
+        const userStr = localStorage.getItem('kalvi_user_profile');
+        if (userStr) {
+          try { profile = JSON.parse(userStr); } catch (e) {}
         }
       }
 

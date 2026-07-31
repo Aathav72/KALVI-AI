@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { getUserProfile } from '@/lib/profile';
 import { useEffect, useState } from 'react';
-import { LogOut, ShieldCheck, UserCheck } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 export default function Navbar() {
   const [profile, setProfile] = useState(null);
@@ -17,9 +17,9 @@ export default function Navbar() {
     if (session?.user) {
       userProf = await getUserProfile(session.user);
     } else if (typeof window !== 'undefined') {
-      const demoStr = localStorage.getItem('kalvi_demo_user');
-      if (demoStr) {
-        try { userProf = JSON.parse(demoStr); } catch (e) {}
+      const userStr = localStorage.getItem('kalvi_user_profile');
+      if (userStr) {
+        try { userProf = JSON.parse(userStr); } catch (e) {}
       }
     }
     setProfile(userProf);
@@ -42,7 +42,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('kalvi_demo_user');
+      localStorage.removeItem('kalvi_user_profile');
     }
     await supabase.auth.signOut();
     setProfile(null);
@@ -97,7 +97,7 @@ export default function Navbar() {
         {profile && (
           <div className="flex items-center gap-4">
             
-            {/* Quick Link to Head Master Portal if logged in as Head Master */}
+            {/* Link to Portal */}
             {isHeadMaster ? (
               <Link
                 href="/headmaster"

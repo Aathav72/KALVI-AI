@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { saveUserProfile } from '@/lib/profile';
-import { ShieldCheck, UserCheck, GraduationCap, BookOpen } from 'lucide-react';
 
 const SUBJECTS = [
   'Science', 'Mathematics', 'History', 'Geography',
@@ -74,40 +73,6 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Instant Quick Demo Logins for easy testing
-  const handleDemoLogin = async (demoRole) => {
-    setLoading(true);
-    const demoUser = demoRole === 'headmaster' 
-      ? {
-          id: 'hm-demo-1',
-          email: 'headmaster@school.edu',
-          full_name: 'Dr. R. Ramanathan (Head Master)',
-          role: 'headmaster',
-          subject: 'Administration',
-          grade: 'All Classes',
-        }
-      : {
-          id: 'teacher-demo-1',
-          email: 'anitha.sharma@school.edu',
-          full_name: 'Dr. Anitha Sharma',
-          role: 'teacher',
-          subject: 'Science',
-          grade: '5',
-        };
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('kalvi_demo_user', JSON.stringify(demoUser));
-    }
-
-    setTimeout(() => {
-      if (demoRole === 'headmaster') {
-        router.push('/headmaster');
-      } else {
-        router.push('/dashboard');
-      }
-    }, 400);
   };
 
   return (
@@ -209,31 +174,6 @@ export default function Home() {
             {isLogin ? (role === 'headmaster' ? '👑 Head Master Portal Login' : '✏️ Teacher Login') : '🎓 Create Account'}
           </h2>
 
-          {/* Quick Demo Login Bar */}
-          <div className="mb-6 p-3 rounded text-center space-y-2" style={{ background: 'rgba(248,225,108,0.08)', border: '1px stroke rgba(248,225,108,0.25)' }}>
-            <p className="font-handwritten text-sm tracking-wide" style={{ color: '#F8E16C' }}>
-              🚀 Quick Demo Access (1-Click Test):
-            </p>
-            <div className="flex items-center gap-2 justify-center flex-wrap">
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('headmaster')}
-                className="px-3 py-1.5 rounded font-display text-xs tracking-wider transition-all duration-200 hover:scale-105"
-                style={{ background: '#F8E16C', color: '#172E24', fontWeight: 'bold' }}
-              >
-                👑 Demo Login as Head Master
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('teacher')}
-                className="px-3 py-1.5 rounded font-display text-xs tracking-wider transition-all duration-200 hover:scale-105"
-                style={{ background: '#7FD6FF', color: '#172E24', fontWeight: 'bold' }}
-              >
-                ✏️ Demo Login as Teacher
-              </button>
-            </div>
-          </div>
-
           {/* Error */}
           {error && (
             <div
@@ -263,7 +203,7 @@ export default function Home() {
                   style={{ background: 'rgba(23,46,36,0.9)', border: '1px solid #2E6B52', color: '#F8F8F2', outline: 'none' }}
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
-                  placeholder={role === 'headmaster' ? 'Dr. R. Ramanathan' : 'Dr. Anitha Sharma'}
+                  placeholder={role === 'headmaster' ? 'Head Master Name' : 'Teacher Name'}
                   required={!isLogin}
                 />
               </div>

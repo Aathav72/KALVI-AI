@@ -6,7 +6,7 @@ import { getUserProfile, getAllTeachersAndSessions } from '@/lib/profile';
 import Link from 'next/link';
 import { 
   Users, BookOpen, GraduationCap, Clock, Search, 
-  ChevronDown, ChevronUp, ExternalLink, Sparkles, Filter, 
+  ChevronDown, ChevronUp, ExternalLink, Filter, 
   Award, School
 } from 'lucide-react';
 
@@ -23,7 +23,7 @@ const WOOD_CARD = {
 
 const LANG_LABELS = {
   en: 'English', hi: 'हिन्दी', ta: 'தமிழ்', te: 'తెలుగు',
-  kn: 'கನ್ನಡ', ml: 'மலയാളம்', mr: 'मராठी', bn: 'বাংলা',
+  kn: 'கನ್ನಡ', ml: 'மலയാളம்', mr: 'மராठी', bn: 'বাংলা',
   gu: 'ગુજરાતી', es: 'Español', fr: 'Français', zh: '中文',
 };
 
@@ -43,27 +43,20 @@ export default function HeadMasterDashboard() {
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      
-      // If demo user or authenticated user
       let profile = null;
+
       if (user) {
         profile = await getUserProfile(user);
       } else if (typeof window !== 'undefined') {
-        const demoStr = localStorage.getItem('kalvi_demo_user');
-        if (demoStr) {
-          try { profile = JSON.parse(demoStr); } catch (e) {}
+        const userStr = localStorage.getItem('kalvi_user_profile');
+        if (userStr) {
+          try { profile = JSON.parse(userStr); } catch (e) {}
         }
-      }
-
-      // Check if user has headmaster access
-      if (!profile) {
-        // Allow fallback preview if visiting directly or demo login
-        profile = { full_name: 'Dr. R. Ramanathan', role: 'headmaster', email: 'headmaster@school.edu' };
       }
 
       setUserProfile(profile);
 
-      // Load all teachers and sessions
+      // Load all actual teachers and sessions from database
       const allTeachers = await getAllTeachersAndSessions();
       setTeachers(allTeachers);
       setLoading(false);
@@ -132,7 +125,7 @@ export default function HeadMasterDashboard() {
             Welcome, {userProfile?.full_name || 'Head Master'}! 👋
           </h1>
           <p className="font-handwritten text-xl tracking-wider" style={{ color: 'rgba(248,248,242,0.75)' }}>
-            Monitor teaching staff details, assigned subjects, class standards, and live classroom sessions.
+            Monitor registered teaching staff details, assigned subjects, class standards, and live classroom sessions.
           </p>
         </div>
 
@@ -273,8 +266,10 @@ export default function HeadMasterDashboard() {
 
         {filteredTeachers.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 rounded text-center relative overflow-hidden" style={WOOD_CARD}>
-            <p className="font-handwritten text-2xl" style={{ color: 'rgba(248,248,242,0.6)' }}>
-              No teachers found matching your filters. Try clearing your search query! 🔍
+            <p className="font-handwritten text-2xl" style={{ color: 'rgba(248,248,242,0.7)' }}>
+              {teachers.length === 0 
+                ? "No teachers registered yet. As teachers sign up and create classroom sessions, their details will appear here!" 
+                : "No teachers found matching your search or filters."}
             </p>
           </div>
         ) : (
@@ -282,7 +277,6 @@ export default function HeadMasterDashboard() {
             {filteredTeachers.map(teacher => {
               const isExpanded = expandedTeacherId === teacher.id;
               const sessionCount = teacher.sessions ? teacher.sessions.length : 0;
-              const latestSession = teacher.sessions && teacher.sessions.length > 0 ? teacher.sessions[0] : null;
 
               return (
                 <div
