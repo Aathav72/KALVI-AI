@@ -2,29 +2,55 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { getUserProfile } from '@/lib/profile';
 import { useEffect, useState } from 'react';
-import { LogOut } from 'lucide-react';
+import { LogOut, ShieldCheck, UserCheck } from 'lucide-react';
 
 export default function Navbar() {
-  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const router = useRouter();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
+  const loadProfile = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    let userProf = null;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    if (session?.user) {
+      userProf = await getUserProfile(session.user);
+    } else if (typeof window !== 'undefined') {
+      const demoStr = localStorage.getItem('kalvi_demo_user');
+      if (demoStr) {
+        try { userProf = JSON.parse(demoStr); } catch (e) {}
+      }
+    }
+    setProfile(userProf);
+  };
+
+  useEffect(() => {
+    loadProfile();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        const prof = await getUserProfile(session.user);
+        setProfile(prof);
+      } else {
+        loadProfile();
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const handleLogout = async () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('kalvi_demo_user');
+    }
     await supabase.auth.signOut();
+    setProfile(null);
     router.push('/');
   };
+
+  const isHeadMaster = profile?.role === 'headmaster';
+  const homeLink     = profile ? (isHeadMaster ? '/headmaster' : '/dashboard') : '/';
 
   return (
     <nav
@@ -42,7 +68,7 @@ export default function Navbar() {
 
         {/* Brand Logo */}
         <Link
-          href={user ? "/dashboard" : "/"}
+          href={homeLink}
           className="flex items-center gap-3 group"
           id="navbar-brand"
         >
@@ -62,19 +88,39 @@ export default function Navbar() {
               className="font-handwritten text-xs tracking-widest"
               style={{ color: 'rgba(248,248,242,0.65)', fontSize: '0.65rem' }}
             >
-              Digital Classroom Board
+              {isHeadMaster ? '👑 Head Master Portal' : 'Digital Classroom Board'}
             </span>
           </div>
         </Link>
 
         {/* Right Side */}
-        {user && (
+        {profile && (
           <div className="flex items-center gap-4">
+            
+            {/* Quick Link to Head Master Portal if logged in as Head Master */}
+            {isHeadMaster ? (
+              <Link
+                href="/headmaster"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded font-display text-xs tracking-wider transition-all"
+                style={{ background: 'rgba(248,225,108,0.2)', border: '1px solid #F8E16C', color: '#F8E16C' }}
+              >
+                <span>👑 Head Master Portal</span>
+              </Link>
+            ) : (
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded font-display text-xs tracking-wider transition-all"
+                style={{ background: 'rgba(127,214,255,0.15)', border: '1px solid #7FD6FF', color: '#7FD6FF' }}
+              >
+                <span>🖊️ Teacher Dashboard</span>
+              </Link>
+            )}
+
             <span
-              className="font-handwritten text-sm tracking-wider hidden sm:block"
-              style={{ color: 'rgba(248,248,242,0.6)' }}
+              className="font-handwritten text-sm tracking-wider hidden md:block"
+              style={{ color: 'rgba(248,248,242,0.75)' }}
             >
-              ✏️ {user.email}
+              {isHeadMaster ? '👑' : '✏️'} {profile.full_name || profile.email}
             </span>
 
             <button

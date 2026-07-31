@@ -2,10 +2,22 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { saveUserProfile } from '@/lib/profile';
+import { ShieldCheck, UserCheck, GraduationCap, BookOpen } from 'lucide-react';
+
+const SUBJECTS = [
+  'Science', 'Mathematics', 'History', 'Geography',
+  'English', 'Computer Science', 'Social Studies',
+  'Hindi', 'Environmental Studies',
+];
 
 export default function Home() {
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [role,     setRole]     = useState('teacher'); // 'teacher' or 'headmaster'
+  const [subject,  setSubject]  = useState('Science');
+  const [grade,    setGrade]    = useState('5');
   const [isLogin,  setIsLogin]  = useState(true);
   const [error,    setError]    = useState(null);
   const [loading,  setLoading]  = useState(false);
@@ -17,13 +29,38 @@ export default function Home() {
     setError(null);
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-      } else {
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        if (data?.session) {
+        
+        // Save/Sync profile role if present
+        const user = data.user;
+        const profile = await saveUserProfile(user, { full_name: fullName, role, subject, grade });
+
+        if (profile?.role === 'headmaster' || role === 'headmaster') {
+          router.push('/headmaster');
+        } else {
           router.push('/dashboard');
+        }
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: fullName, role, subject, grade }
+          }
+        });
+        if (error) throw error;
+
+        if (data?.user) {
+          await saveUserProfile(data.user, { full_name: fullName, role, subject, grade });
+        }
+
+        if (data?.session) {
+          if (role === 'headmaster') {
+            router.push('/headmaster');
+          } else {
+            router.push('/dashboard');
+          }
           return;
         } else {
           alert("Signup successful! Please check your email inbox to confirm your account, then log in.");
@@ -32,7 +69,6 @@ export default function Home() {
           return;
         }
       }
-      router.push('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -40,8 +76,42 @@ export default function Home() {
     }
   };
 
+  // Instant Quick Demo Logins for easy testing
+  const handleDemoLogin = async (demoRole) => {
+    setLoading(true);
+    const demoUser = demoRole === 'headmaster' 
+      ? {
+          id: 'hm-demo-1',
+          email: 'headmaster@school.edu',
+          full_name: 'Dr. R. Ramanathan (Head Master)',
+          role: 'headmaster',
+          subject: 'Administration',
+          grade: 'All Classes',
+        }
+      : {
+          id: 'teacher-demo-1',
+          email: 'anitha.sharma@school.edu',
+          full_name: 'Dr. Anitha Sharma',
+          role: 'teacher',
+          subject: 'Science',
+          grade: '5',
+        };
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('kalvi_demo_user', JSON.stringify(demoUser));
+    }
+
+    setTimeout(() => {
+      if (demoRole === 'headmaster') {
+        router.push('/headmaster');
+      } else {
+        router.push('/dashboard');
+      }
+    }, 400);
+  };
+
   return (
-    <div className="min-h-[92vh] flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden animate-fade-in">
+    <div className="min-h-[92vh] flex flex-col items-center justify-center px-4 py-10 relative overflow-hidden animate-fade-in">
 
       {/* Background deco doodles */}
       <div className="absolute top-16 left-10 opacity-10 hidden lg:block animate-chalk-float pointer-events-none select-none">
@@ -66,8 +136,8 @@ export default function Home() {
       </div>
 
       {/* Hero */}
-      <div className="text-center mb-10 space-y-3">
-        <div className="flex items-center justify-center gap-3 mb-2">
+      <div className="text-center mb-8 space-y-2">
+        <div className="flex items-center justify-center gap-3 mb-1">
           <span className="text-5xl">📚</span>
         </div>
         <h1
@@ -80,15 +150,14 @@ export default function Home() {
           className="font-handwritten text-xl sm:text-2xl tracking-widest"
           style={{ color: 'rgba(248,248,242,0.7)' }}
         >
-          AI Classroom Copilot for Indian Teachers · Classes 1–12
+          AI Classroom Copilot & Head Master Management System
         </p>
-        {/* Chalk divider */}
-        <div className="chalk-divider max-w-sm mx-auto mt-3" />
+        <div className="chalk-divider max-w-sm mx-auto mt-2" />
       </div>
 
       {/* Auth Card — mini chalkboard with wood frame */}
       <div
-        className="w-full max-w-md relative"
+        className="w-full max-w-lg relative"
         style={{
           background: '#172E24',
           border: '8px solid #8B5A2B',
@@ -103,14 +172,67 @@ export default function Home() {
         {/* Board texture inside card */}
         <div className="absolute inset-0 board-ruled opacity-70 pointer-events-none rounded" />
 
-        <div className="relative z-10 p-8">
-          {/* Card heading */}
+        <div className="relative z-10 p-6 sm:p-8">
+          
+          {/* Role Selection Tabs */}
+          <div className="flex items-center justify-center gap-2 mb-6 p-1 rounded" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid #2E6B52' }}>
+            <button
+              type="button"
+              onClick={() => setRole('teacher')}
+              className={`flex-1 py-2.5 px-3 rounded font-display text-sm sm:text-base tracking-wider transition-all duration-200 flex items-center justify-center gap-2 ${role === 'teacher' ? 'shadow-md' : 'opacity-60'}`}
+              style={{
+                background: role === 'teacher' ? 'linear-gradient(to bottom, #A0703A, #8B5A2B)' : 'transparent',
+                color: role === 'teacher' ? '#F8E16C' : '#F8F8F2',
+                border: role === 'teacher' ? '1px solid #3D1F0A' : 'none',
+              }}
+            >
+              <span>✏️ Teacher Login</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole('headmaster')}
+              className={`flex-1 py-2.5 px-3 rounded font-display text-sm sm:text-base tracking-wider transition-all duration-200 flex items-center justify-center gap-2 ${role === 'headmaster' ? 'shadow-md' : 'opacity-60'}`}
+              style={{
+                background: role === 'headmaster' ? 'linear-gradient(to bottom, #A0703A, #8B5A2B)' : 'transparent',
+                color: role === 'headmaster' ? '#F8E16C' : '#F8F8F2',
+                border: role === 'headmaster' ? '1px solid #3D1F0A' : 'none',
+              }}
+            >
+              <span>👑 Head Master Login</span>
+            </button>
+          </div>
+
           <h2
             className="font-display text-2xl sm:text-3xl font-bold text-center mb-6 tracking-wider"
             style={{ color: '#F8E16C', textShadow: '0 0 8px rgba(248,225,108,0.4), 1px 1px 0 rgba(0,0,0,0.4)' }}
           >
-            {isLogin ? '✏️ Teacher Login' : '🎓 Register'}
+            {isLogin ? (role === 'headmaster' ? '👑 Head Master Portal Login' : '✏️ Teacher Login') : '🎓 Create Account'}
           </h2>
+
+          {/* Quick Demo Login Bar */}
+          <div className="mb-6 p-3 rounded text-center space-y-2" style={{ background: 'rgba(248,225,108,0.08)', border: '1px stroke rgba(248,225,108,0.25)' }}>
+            <p className="font-handwritten text-sm tracking-wide" style={{ color: '#F8E16C' }}>
+              🚀 Quick Demo Access (1-Click Test):
+            </p>
+            <div className="flex items-center gap-2 justify-center flex-wrap">
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('headmaster')}
+                className="px-3 py-1.5 rounded font-display text-xs tracking-wider transition-all duration-200 hover:scale-105"
+                style={{ background: '#F8E16C', color: '#172E24', fontWeight: 'bold' }}
+              >
+                👑 Demo Login as Head Master
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('teacher')}
+                className="px-3 py-1.5 rounded font-display text-xs tracking-wider transition-all duration-200 hover:scale-105"
+                style={{ background: '#7FD6FF', color: '#172E24', fontWeight: 'bold' }}
+              >
+                ✏️ Demo Login as Teacher
+              </button>
+            </div>
+          </div>
 
           {/* Error */}
           {error && (
@@ -127,10 +249,65 @@ export default function Home() {
             </div>
           )}
 
-          <form onSubmit={handleAuth} className="space-y-5">
-            <div className="flex flex-col gap-2">
+          <form onSubmit={handleAuth} className="space-y-4">
+            
+            {!isLogin && (
+              <div className="flex flex-col gap-1.5">
+                <label className="font-handwritten text-base tracking-widest" style={{ color: '#FF9CCF' }} htmlFor="auth-name">
+                  👤 Full Name
+                </label>
+                <input
+                  type="text"
+                  id="auth-name"
+                  className="w-full px-4 py-2.5 rounded font-handwritten text-lg tracking-wide"
+                  style={{ background: 'rgba(23,46,36,0.9)', border: '1px solid #2E6B52', color: '#F8F8F2', outline: 'none' }}
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  placeholder={role === 'headmaster' ? 'Dr. R. Ramanathan' : 'Dr. Anitha Sharma'}
+                  required={!isLogin}
+                />
+              </div>
+            )}
+
+            {!isLogin && role === 'teacher' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-handwritten text-base tracking-widest" style={{ color: '#FF9CCF' }} htmlFor="auth-subject">
+                    📖 Primary Subject
+                  </label>
+                  <select
+                    id="auth-subject"
+                    value={subject}
+                    onChange={e => setSubject(e.target.value)}
+                    className="w-full px-3 py-2 rounded font-handwritten text-base"
+                    style={{ background: 'rgba(23,46,36,0.9)', border: '1px solid #2E6B52', color: '#F8F8F2' }}
+                  >
+                    {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-handwritten text-base tracking-widest" style={{ color: '#FF9CCF' }} htmlFor="auth-grade">
+                    🎓 Standard (Grade)
+                  </label>
+                  <select
+                    id="auth-grade"
+                    value={grade}
+                    onChange={e => setGrade(e.target.value)}
+                    className="w-full px-3 py-2 rounded font-handwritten text-base"
+                    style={{ background: 'rgba(23,46,36,0.9)', border: '1px solid #2E6B52', color: '#F8F8F2' }}
+                  >
+                    {[...Array(12)].map((_, i) => (
+                      <option key={i+1} value={`${i+1}`}>Grade {i+1}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-1.5">
               <label
-                className="font-handwritten text-lg tracking-widest"
+                className="font-handwritten text-base tracking-widest"
                 style={{ color: '#FF9CCF', textShadow: '0 0 6px rgba(255,156,207,0.3)' }}
                 htmlFor="auth-email"
               >
@@ -139,7 +316,7 @@ export default function Home() {
               <input
                 type="email"
                 id="auth-email"
-                className="w-full px-4 py-3 rounded font-handwritten text-lg tracking-wide transition-all duration-200"
+                className="w-full px-4 py-2.5 rounded font-handwritten text-lg tracking-wide transition-all duration-200"
                 style={{
                   background: 'rgba(23,46,36,0.9)',
                   border: '1px solid #2E6B52',
@@ -148,16 +325,14 @@ export default function Home() {
                 }}
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="teacher@school.edu"
+                placeholder={role === 'headmaster' ? 'headmaster@school.edu' : 'teacher@school.edu'}
                 required
-                onFocus={e => { e.target.style.borderColor = '#F8E16C'; e.target.style.boxShadow = '0 0 0 2px rgba(248,225,108,0.12)'; }}
-                onBlur={e => { e.target.style.borderColor = '#2E6B52'; e.target.style.boxShadow = 'none'; }}
               />
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               <label
-                className="font-handwritten text-lg tracking-widest"
+                className="font-handwritten text-base tracking-widest"
                 style={{ color: '#FF9CCF', textShadow: '0 0 6px rgba(255,156,207,0.3)' }}
                 htmlFor="auth-password"
               >
@@ -166,7 +341,7 @@ export default function Home() {
               <input
                 type="password"
                 id="auth-password"
-                className="w-full px-4 py-3 rounded font-handwritten text-lg tracking-wide transition-all duration-200"
+                className="w-full px-4 py-2.5 rounded font-handwritten text-lg tracking-wide transition-all duration-200"
                 style={{
                   background: 'rgba(23,46,36,0.9)',
                   border: '1px solid #2E6B52',
@@ -177,8 +352,6 @@ export default function Home() {
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                onFocus={e => { e.target.style.borderColor = '#F8E16C'; e.target.style.boxShadow = '0 0 0 2px rgba(248,225,108,0.12)'; }}
-                onBlur={e => { e.target.style.borderColor = '#2E6B52'; e.target.style.boxShadow = 'none'; }}
               />
             </div>
 
@@ -197,15 +370,13 @@ export default function Home() {
                 boxShadow: '3px 3px 0 #3D1F0A, inset 0 1px 0 rgba(255,255,255,0.15)',
                 textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
               }}
-              onMouseEnter={e => { if (!loading) e.currentTarget.style.transform = 'translateY(1px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = ''; }}
             >
-              {loading ? '⌛ Processing…' : isLogin ? '🎯 Login →' : '🎓 Sign Up →'}
+              {loading ? '⌛ Processing…' : isLogin ? (role === 'headmaster' ? '👑 Head Master Login →' : '🎯 Teacher Login →') : '🎓 Register Account →'}
             </button>
           </form>
 
           {/* Toggle */}
-          <div className="text-center mt-6">
+          <div className="text-center mt-5">
             <button
               id="auth-toggle"
               onClick={() => { setIsLogin(!isLogin); setError(null); }}
@@ -233,12 +404,13 @@ export default function Home() {
       </div>
 
       {/* Feature chips */}
-      <div className="mt-14 flex flex-wrap items-center justify-center gap-4 max-w-lg">
+      <div className="mt-12 flex flex-wrap items-center justify-center gap-4 max-w-lg">
         {[
+          ['👑', 'Head Master Portal'],
+          ['👩‍🏫', 'Teacher Roster'],
           ['🎤', 'Voice Input'],
           ['🤖', 'AI Explanations'],
           ['📝', 'Auto Quiz'],
-          ['🌐', 'Multilingual'],
           ['📊', 'Live Projector'],
         ].map(([icon, label]) => (
           <div

@@ -2,12 +2,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { getUserProfile } from '@/lib/profile';
 import Link from 'next/link';
-import { Plus, Clock, ExternalLink, BookOpen, Languages, Sparkles } from 'lucide-react';
+import { Plus, Clock, ExternalLink, BookOpen, Languages, Sparkles, Award } from 'lucide-react';
 
 const LANG_LABELS = {
   en: 'English', hi: 'हिन्दी', ta: 'தமிழ்', te: 'తెలుగు',
-  kn: 'ಕನ್ನಡ', ml: 'മലയാളം', mr: 'मराठी', bn: 'বাংলা',
+  kn: 'கನ್ನಡ', ml: 'மலയാളம்', mr: 'மராठी', bn: 'বাংলা',
   gu: 'ગુજરાતી', es: 'Español', fr: 'Français', zh: '中文',
 };
 
@@ -23,22 +24,45 @@ const WOOD_CARD = {
 };
 
 export default function Dashboard() {
-  const [sessions, setSessions] = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [sessions, setSessions]       = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading,  setLoading]        = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const fetchSessions = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push('/'); return; }
+      let profile = null;
 
-      const { data, error } = await supabase
-        .from('sessions')
-        .select('*')
-        .eq('teacher_id', user.id)
-        .order('created_at', { ascending: false });
+      if (user) {
+        profile = await getUserProfile(user);
+      } else if (typeof window !== 'undefined') {
+        const demoStr = localStorage.getItem('kalvi_demo_user');
+        if (demoStr) {
+          try { profile = JSON.parse(demoStr); } catch (e) {}
+        }
+      }
 
-      if (!error) setSessions(data || []);
+      if (!user && !profile) { router.push('/'); return; }
+
+      // If user is Head Master, redirect to Head Master Administration Portal
+      if (profile?.role === 'headmaster') {
+        router.push('/headmaster');
+        return;
+      }
+
+      setUserProfile(profile);
+
+      if (user) {
+        const { data, error } = await supabase
+          .from('sessions')
+          .select('*')
+          .eq('teacher_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (!error) setSessions(data || []);
+      }
+
       setLoading(false);
     };
     fetchSessions();
@@ -48,7 +72,7 @@ export default function Dashboard() {
     return (
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-center min-h-[80vh]">
         <p className="font-display text-2xl animate-pulse" style={{ color: 'rgba(248,248,242,0.5)' }}>
-          Loading dashboard…
+          Loading teacher dashboard…
         </p>
       </div>
     );
@@ -71,7 +95,7 @@ export default function Dashboard() {
             🖊️ Teacher Dashboard
           </h1>
           <p className="font-handwritten text-xl mt-1 tracking-wider" style={{ color: 'rgba(248,248,242,0.6)' }}>
-            Welcome back! Ready to start a new lesson? 👋
+            Welcome back, {userProfile?.full_name || 'Teacher'}! Ready to start a new lesson? 👋
           </p>
         </div>
 
@@ -154,7 +178,7 @@ export default function Dashboard() {
                 background: 'linear-gradient(to bottom, #A0703A, #8B5A2B, #5E3A1A)',
                 border: '2px solid #3D1F0A',
                 color: '#F8F8F2',
-                boxShadow: '3px 3px 0 #3D1F0A',
+                boxShadow: '3px 3px 0 #3D1F0A, inset 0 1px 0 rgba(255,255,255,0.4)',
                 textShadow: '1px 1px 2px rgba(0,0,0,0.4)',
               }}
             >
