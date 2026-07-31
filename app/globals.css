@@ -192,16 +192,9 @@
 
 
   .board-ruled {
-    background-image: linear-gradient(rgba(248, 248, 242, 0.055) 1px, transparent 1px);
-    background-size: 100% 2.25rem;
-    background-position: 0 0.5rem;
   }
 
   .board-grid {
-    background-image:
-      linear-gradient(rgba(248, 248, 242, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(248, 248, 242, 0.04) 1px, transparent 1px);
-    background-size: 2.5rem 2.5rem;
   }
 
 
