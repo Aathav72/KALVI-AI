@@ -58,21 +58,43 @@ export default function HeadMasterDashboard() {
       let profile = null;
 
       if (user) {
-        profile = await getUserProfile(user);
-        
-        // Ensure they have the headmaster role in the database if they are accessing this admin portal
-        if (profile && profile.role !== 'headmaster') {
-          profile.role = 'headmaster';
+        // Fetch actual profile row directly from database to test existence and role
+        let dbProfile = null;
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+          dbProfile = data;
+        } catch (e) {
+          console.warn('Failed to query dbProfile:', e);
+        }
+
+        if (!dbProfile || dbProfile.role !== 'headmaster') {
+          // If the profile does not exist or has incorrect role in DB, force upsert it!
+          const newProfile = {
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Head Master',
+            role: 'headmaster',
+            subject: '',
+            grade: '',
+            created_at: new Date().toISOString(),
+          };
           try {
-            await supabase
-              .from('profiles')
-              .update({ role: 'headmaster' })
-              .eq('id', user.id);
+            await supabase.from('profiles').upsert(newProfile);
+            profile = newProfile;
             if (typeof window !== 'undefined') {
-              localStorage.setItem('kalvi_user_profile', JSON.stringify(profile));
+              localStorage.setItem('kalvi_user_profile', JSON.stringify(newProfile));
             }
           } catch (e) {
-            console.error('Failed to sync headmaster role in database:', e);
+            console.error('Failed to sync headmaster profile in database:', e);
+          }
+        } else {
+          profile = dbProfile;
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('kalvi_user_profile', JSON.stringify(dbProfile));
           }
         }
       } else if (typeof window !== 'undefined') {
