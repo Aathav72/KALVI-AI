@@ -11,15 +11,15 @@ const SUBJECTS = [
 ];
 
 export default function Home() {
-  const [email,    setEmail]    = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [role,     setRole]     = useState('teacher'); // 'teacher' or 'headmaster'
-  const [subject,  setSubject]  = useState('Science');
-  const [grade,    setGrade]    = useState('5');
-  const [isLogin,  setIsLogin]  = useState(true);
-  const [error,    setError]    = useState(null);
-  const [loading,  setLoading]  = useState(false);
+  const [role, setRole] = useState('teacher'); // 'teacher' or 'headmaster'
+  const [subject, setSubject] = useState('Science');
+  const [grade, setGrade] = useState('5');
+  const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleAuth = async (e) => {
@@ -30,8 +30,8 @@ export default function Home() {
       if (isLogin) {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        
-        // Save/Sync profile role if present
+
+        // Save/Sy
         const user = data.user;
         const profile = await saveUserProfile(user, { full_name: fullName, role, subject, grade });
 
@@ -138,7 +138,7 @@ export default function Home() {
         <div className="absolute inset-0 board-ruled opacity-70 pointer-events-none rounded" />
 
         <div className="relative z-10 p-6 sm:p-8">
-          
+
           {/* Role Selection Tabs */}
           <div className="flex items-center justify-center gap-2 mb-6 p-1 rounded" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid #2E6B52' }}>
             <button
@@ -190,7 +190,7 @@ export default function Home() {
           )}
 
           <form onSubmit={handleAuth} className="space-y-4">
-            
+
             {!isLogin && (
               <div className="flex flex-col gap-1.5">
                 <label className="font-handwritten text-base tracking-widest" style={{ color: '#FF9CCF' }} htmlFor="auth-name">
@@ -238,7 +238,7 @@ export default function Home() {
                     style={{ background: 'rgba(23,46,36,0.9)', border: '1px solid #2E6B52', color: '#F8F8F2' }}
                   >
                     {[...Array(12)].map((_, i) => (
-                      <option key={i+1} value={`${i+1}`}>Grade {i+1}</option>
+                      <option key={i + 1} value={`${i + 1}`}>Grade {i + 1}</option>
                     ))}
                   </select>
                 </div>
@@ -338,9 +338,9 @@ export default function Home() {
           zIndex: 20, borderRadius: '0 0 4px 4px',
         }} />
         {/* Chalk sticks */}
-        <div style={{ position:'absolute', bottom:'-11px', left:'18%', width:'28px', height:'7px', background:'#FAF6E9', borderRadius:'4px', transform:'rotate(-8deg)', boxShadow:'0 2px 4px rgba(0,0,0,0.4)', zIndex:25 }} />
-        <div style={{ position:'absolute', bottom:'-11px', left:'40%', width:'32px', height:'7px', background:'#F8E16C', borderRadius:'4px', transform:'rotate(6deg)',  boxShadow:'0 2px 4px rgba(0,0,0,0.4)', zIndex:25 }} />
-        <div style={{ position:'absolute', bottom:'-11px', left:'62%', width:'28px', height:'7px', background:'#FF9CCF', borderRadius:'4px', transform:'rotate(-5deg)', boxShadow:'0 2px 4px rgba(0,0,0,0.4)', zIndex:25 }} />
+        <div style={{ position: 'absolute', bottom: '-11px', left: '18%', width: '28px', height: '7px', background: '#FAF6E9', borderRadius: '4px', transform: 'rotate(-8deg)', boxShadow: '0 2px 4px rgba(0,0,0,0.4)', zIndex: 25 }} />
+        <div style={{ position: 'absolute', bottom: '-11px', left: '40%', width: '32px', height: '7px', background: '#F8E16C', borderRadius: '4px', transform: 'rotate(6deg)', boxShadow: '0 2px 4px rgba(0,0,0,0.4)', zIndex: 25 }} />
+        <div style={{ position: 'absolute', bottom: '-11px', left: '62%', width: '28px', height: '7px', background: '#FF9CCF', borderRadius: '4px', transform: 'rotate(-5deg)', boxShadow: '0 2px 4px rgba(0,0,0,0.4)', zIndex: 25 }} />
       </div>
 
       {/* Feature chips */}
