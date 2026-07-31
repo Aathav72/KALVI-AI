@@ -171,31 +171,79 @@ export default function Projector({ params }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
             {session.quiz[0].options.map((opt, idx) => {
-              const isSelectedByTeacher = session.quiz[0].selectedAnswerIndex === idx;
+              const quizItem = session.quiz[0];
+              const hasSelected = quizItem.selectedAnswerIndex !== undefined && quizItem.selectedAnswerIndex !== null;
+              const isSelectedByTeacher = quizItem.selectedAnswerIndex === idx;
+              const isCorrectAnswer = idx === quizItem.answerIndex;
+
+              let cardBg = 'rgba(23,46,36,0.6)';
+              let cardBorder = '2px dashed #2E6B52';
+              let cardTextColor = '#F8F8F2';
+              let badgeBg = 'rgba(248,225,108,0.1)';
+              let badgeColor = '#F8E16C';
+              let rightLabel = null;
+              let scaleVal = 'scale(1)';
+              let shadowVal = '0 4px 12px rgba(0,0,0,0.3)';
+
+              if (hasSelected) {
+                if (isCorrectAnswer) {
+                  cardBg = 'rgba(136,217,168,0.15)';
+                  cardBorder = '2px solid #88D9A8';
+                  cardTextColor = '#88D9A8';
+                  badgeBg = '#88D9A8';
+                  badgeColor = '#172E24';
+                  rightLabel = '✓ CORRECT';
+                  scaleVal = 'scale(1.02)';
+                  shadowVal = '0 0 24px rgba(136,217,168,0.25)';
+                } else if (isSelectedByTeacher) {
+                  cardBg = 'rgba(255,156,207,0.15)';
+                  cardBorder = '2px solid #FF9CCF';
+                  cardTextColor = '#FF9CCF';
+                  badgeBg = '#FF9CCF';
+                  badgeColor = '#172E24';
+                  rightLabel = '✗ INCORRECT';
+                  scaleVal = 'scale(1.02)';
+                  shadowVal = '0 0 24px rgba(255,156,207,0.25)';
+                } else {
+                  cardBg = 'rgba(23,46,36,0.3)';
+                  cardBorder = '2px dashed rgba(46,107,82,0.3)';
+                  cardTextColor = 'rgba(248,248,242,0.4)';
+                  badgeBg = 'rgba(248,225,108,0.05)';
+                  badgeColor = 'rgba(248,225,108,0.4)';
+                }
+              }
+
               return (
                 <div
                   key={idx}
                   className="flex items-center justify-between gap-4 cursor-default transition-all duration-300"
                   style={{
                     padding: '1.25rem 1.5rem',
-                    background: isSelectedByTeacher ? 'rgba(248,225,108,0.2)' : 'rgba(23,46,36,0.6)',
-                    border: isSelectedByTeacher ? '2px solid #F8E16C' : '2px dashed #2E6B52',
+                    background: cardBg,
+                    border: cardBorder,
                     borderRadius: '4px',
-                    boxShadow: isSelectedByTeacher ? '0 0 24px rgba(248,225,108,0.35)' : '0 4px 12px rgba(0,0,0,0.3)',
-                    transform: isSelectedByTeacher ? 'scale(1.02)' : 'scale(1)',
+                    boxShadow: shadowVal,
+                    transform: scaleVal,
                   }}
-                  onMouseEnter={e => { if (!isSelectedByTeacher) e.currentTarget.style.borderColor = '#7FD6FF'; }}
-                  onMouseLeave={e => { if (!isSelectedByTeacher) e.currentTarget.style.borderColor = '#2E6B52'; }}
+                  onMouseEnter={e => {
+                    if (!hasSelected) {
+                      e.currentTarget.style.borderColor = '#7FD6FF';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!hasSelected) {
+                      e.currentTarget.style.borderColor = '#2E6B52';
+                    }
+                  }}
                 >
                   <div className="flex items-center gap-4">
                     <span
                       className="w-11 h-11 rounded-full flex items-center justify-center font-display text-lg flex-shrink-0"
                       style={{
-                        border: isSelectedByTeacher ? '2px solid #F8E16C' : '2px solid #F8E16C',
-                        background: isSelectedByTeacher ? '#F8E16C' : 'rgba(248,225,108,0.1)',
-                        color: isSelectedByTeacher ? '#172E24' : '#F8E16C',
-                        fontWeight: isSelectedByTeacher ? 'bold' : 'normal',
-                        textShadow: isSelectedByTeacher ? 'none' : '0 0 6px rgba(248,225,108,0.4)',
+                        border: `2px solid ${hasSelected ? (isCorrectAnswer ? '#88D9A8' : isSelectedByTeacher ? '#FF9CCF' : 'rgba(248,225,108,0.4)') : '#F8E16C'}`,
+                        background: badgeBg,
+                        color: badgeColor,
+                        fontWeight: 'bold',
                         minWidth: '2.75rem',
                       }}
                     >
@@ -203,14 +251,14 @@ export default function Projector({ params }) {
                     </span>
                     <span
                       className="font-handwritten text-xl sm:text-2xl text-left"
-                      style={{ color: isSelectedByTeacher ? '#F8E16C' : '#F8F8F2', letterSpacing: '0.03em' }}
+                      style={{ color: cardTextColor, letterSpacing: '0.03em' }}
                     >
                       {opt}
                     </span>
                   </div>
-                  {isSelectedByTeacher && (
-                    <span className="px-3 py-1 rounded font-display text-xs tracking-wider font-bold shrink-0" style={{ background: '#F8E16C', color: '#172E24' }}>
-                      ✓ CORRECT ANSWER
+                  {rightLabel && (
+                    <span className="px-3 py-1 rounded font-display text-xs tracking-wider font-bold shrink-0" style={{ background: isCorrectAnswer ? '#88D9A8' : '#FF9CCF', color: '#172E24' }}>
+                      {rightLabel}
                     </span>
                   )}
                 </div>
