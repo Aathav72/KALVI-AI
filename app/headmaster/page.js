@@ -40,6 +40,18 @@ export default function HeadMasterDashboard() {
 
   const router = useRouter();
 
+  // Returns a proper display name — avoids showing raw email prefixes
+  const getDisplayName = (profile) => {
+    if (!profile) return 'Head Master';
+    const name = profile.full_name || '';
+    const emailPrefix = (profile.email || '').split('@')[0];
+    // If name is blank, same as email prefix, or has no spaces (likely an email-derived username)
+    if (!name || name === emailPrefix || (!name.includes(' ') && name.toLowerCase() === emailPrefix.toLowerCase())) {
+      return 'Head Master';
+    }
+    return name;
+  };
+
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -122,7 +134,7 @@ export default function HeadMasterDashboard() {
             className="font-display text-3xl sm:text-4xl font-bold tracking-wider chalk-glow"
             style={{ color: '#F8E16C', textShadow: '0 0 14px rgba(248,225,108,0.4), 2px 2px 0 rgba(0,0,0,0.5)' }}
           >
-            Welcome, {userProfile?.full_name || 'Head Master'}! 👋
+            Welcome, {getDisplayName(userProfile)}! 👋
           </h1>
           <p className="font-handwritten text-xl tracking-wider" style={{ color: 'rgba(248,248,242,0.75)' }}>
             Monitor registered teaching staff details, assigned subjects, class standards, and live classroom sessions.
